@@ -55,6 +55,29 @@ class Main():
         #model 학습
         model.fit_generator(generator=training_generator,use_multiprocessing=True,workers=8,callbacks=callback_list,epochs=self.epoch)
 
+    def test(self):
+        filepath = "weights/model_20.h5"
+        model = FACNN(2)
+        model.load_weights(filepath)
+    
+    def convertLite(self,filePath,output):
+        filePath = filePath
+        layer = FACNN(2,True,1920,1080)
+        layer.load_weights(filePath)
+        # new_model = tf.keras.models.load_model(filePath,custom_objects=
+        # {
+        #     "calc_psnr" : self.calc_psnr,
+        #     "calc_ssim" : self.calc_ssim
+        # })
+        converter = tf.lite.TFLiteConverter.from_keras_model(layer)
+        tflite_model = converter.convert()
+
+        with open(output,'wb') as f:
+            f.write(tflite_model)
+
+
+
 if __name__ =="__main__":
     main = Main(30,"dataset/Flickr2K_HR",128,2,16)
     main.train()
+    # main.convertLite("weights/model_1.h5","tfmodel.tflite")
